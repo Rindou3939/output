@@ -42,4 +42,72 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * 自分がフォローしているユーザー（フォロー中）
+     */
+    public function following()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'following_id', 'followed_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * 自分をフォローしているユーザー（フォロワー）
+     */
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'followed_id', 'following_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * 指定したユーザーをフォローしているか確認
+     */
+    public function isFollowing($userId)
+    {
+        return $this->following()->where('followed_id', $userId)->exists();
+    }
+
+    /**
+     * 指定したユーザーにフォローされているか確認
+     */
+    public function isFollowedBy($userId)
+    {
+        return $this->followers()->where('following_id', $userId)->exists();
+    }
+
+    /**
+     * 自分がブロックしているユーザー（フォロー中）
+     */
+    public function blocking()
+    {
+        return $this->belongsToMany(User::class, 'blockers', 'blocking_id', 'blocking_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * 自分をブロックしているユーザー（フォロワー）
+     */
+    public function blockers()
+    {
+        return $this->belongsToMany(User::class, 'blockers', 'blocked_id', 'blocking_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * 指定したユーザーをブロックしているか確認
+     */
+    public function isBlocking($userId)
+    {
+        return $this->blocking()->where('blocked_id', $userId)->exists();
+    }
+
+    /**
+     * 指定したユーザーにブロックされているか確認
+     */
+    public function isBlockedBy($userId)
+    {
+        return $this->blockers()->where('blocking_id', $userId)->exists();
+    }
 }
