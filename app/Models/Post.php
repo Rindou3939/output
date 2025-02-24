@@ -38,5 +38,11 @@ class Post extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function users()
+    {
+        // 'post_user' テーブルを使って多対多を定義
+        return $this->belongsToMany(User::class)->withTimestamps();
+    }
 }
 

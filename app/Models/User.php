@@ -110,4 +110,10 @@ class User extends Authenticatable
     {
         return $this->blockers()->where('blocking_id', $userId)->exists();
     }
+
+    public function posts()
+    {
+        // 'post_user' テーブルを使って多対多を定義
+        return $this->belongsToMany(Post::class)->withTimestamps();
+    }
 }

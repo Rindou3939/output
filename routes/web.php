@@ -34,6 +34,8 @@ Route::controller(PostController::class)
         Route::put('/posts/{post}', 'update')->name('posts.update');
         Route::delete('/posts/{post}', 'destroy')->name('posts.destroy');
         Route::get('/posts/{post}/edit', 'edit')->name('posts.edit');
+        Route::post('/posts/{post}/join', 'join')->name('posts.join');
+        Route::post('/posts/{post}/leave', 'leave')->name('posts.leave');
     });
 
 Route::middleware('auth')->controller(CommentController::class)->group(function () {
@@ -64,10 +66,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::post('/posts/{post}/join', [PostController::class, 'join'])->name('join');
 
 Route::get('/edit', 'UserController@index')->name('user.index');
 
 Route::post('/update', 'UserController@update')->name('user.update');
+
+
 
 require __DIR__.'/auth.php';

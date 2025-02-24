@@ -70,15 +70,26 @@ class PostController extends Controller
         return redirect('/');
     }
 
-    public function join($id)
+    // 投稿の参加処理
+    public function join(Post $post)
     {
-        $post = Post::findOrFail($id);
-
-        // 募集人数を超えていない場合のみ増加
-        if ($post->recruitment_target > $post->recruitment_count) {
-            $post->increment('recruitment_count');
+        // まだ参加していない場合だけ attach する
+        if (!$post->users()->where('user_id', auth()->id())->exists()) {
+            $post->users()->attach(auth()->id());
         }
 
-        return redirect()->back()->with('success', '参加しました！');
+        return back();
     }
+
+    // 投稿の辞退処理
+    public function leave(Post $post)
+    {
+        // 参加している場合だけ detach する
+        if ($post->users()->where('user_id', auth()->id())->exists()) {
+            $post->users()->detach(auth()->id());
+        }
+
+        return back();
+    }
+    
 }

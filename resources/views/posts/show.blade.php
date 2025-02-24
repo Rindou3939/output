@@ -5,20 +5,46 @@
 
             <p class="text-gray-700 mb-2">{{ $post->description }}</p>
             <p class="text-sm text-gray-600 mb-1">モンスター: {{ $post->monster->name ?? '不明' }}</p>
-            <p class="text-sm text-gray-600 mb-1">募集人数: {{ $post->recruitment_target ?? '-' }}</p>
-            <p class="text-sm text-gray-600 mb-4">現在の募集数: {{ $post->recruitment_count }}</p>
+            <p class="text-sm text-gray-600 mb-1">参加人数: {{ $post->recruitment_target ?? '-' }}</p>
 
-            {{-- 参加ボタン --}}
-            <form action="{{ route('join', $post->id) }}" method="post">
-                @csrf
-                <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded shadow">
-                    参加
-                </button>
-            </form>
+            @php
+                // 現在の参加人数を取得
+                $currentCount = $post->users->count();
+
+                // 募集上限に達しているかどうか
+                $maxReached = $currentCount >= $post->recruitment_target;
+
+                // ログインユーザーが既に参加しているかどうか
+                $isJoined = $post->users->contains(auth()->id());
+            @endphp
+
+            {{-- 募集上限に達していない場合、または既に参加している場合のみボタンを表示 --}}
+            @if (!$maxReached || $isJoined)
+                <div class="flex space-x-2">
+                    @if ($isJoined)
+                        {{-- 既に参加中の場合は「参加辞退」ボタンを表示 --}}
+                        <form action="{{ route('posts.leave', $post->id) }}" method="post">
+                            @csrf
+                            <button type="submit"
+                                    class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded shadow">
+                                参加辞退
+                            </button>
+                        </form>
+                    @else
+                        {{-- 参加していない場合は、募集上限に達していなければ「参加」ボタンを表示 --}}
+                        <form action="{{ route('posts.join', $post->id) }}" method="post">
+                            @csrf
+                            <button type="submit"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded shadow">
+                                参加
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            @endif
 
             {{-- 参加人数を表示 --}}
-            <p class="text-sm text-gray-600 mt-2">現在の参加人数: {{ $post->recruitment_count }} 人</p>
+            <p class="text-sm text-gray-600 mt-2">現在の参加人数: {{ $post->users->count() }} 人</p>
 
             <div class="flex items-center space-x-2 mb-4">
                 <a href="{{ route('posts.edit', $post->id) }}"
